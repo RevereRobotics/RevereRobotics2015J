@@ -26,10 +26,10 @@ public class Robot extends IterativeRobot {
 	
 	Joystick leftStick = new Joystick(1);
 	Joystick rightStick = new Joystick(0);
-	Talon frontLeft;
-	Talon rearLeft;
-	Talon frontRight;
-	Talon rearRight;
+	InvertableTalon frontLeft;
+	InvertableTalon rearLeft;
+	InvertableTalon frontRight;
+	InvertableTalon rearRight;
 	RobotDrive myRobot;
 
 	
@@ -40,10 +40,10 @@ public class Robot extends IterativeRobot {
 			
 	
     public void robotInit() {
-    	 frontLeft = new Talon(0);
-    	 rearLeft = new Talon(1);
-    	 frontRight = new Talon(2);
-    	 rearRight = new Talon(3);
+    	 frontLeft = new InvertableTalon(0,true);
+    	 rearLeft = new InvertableTalon(1,true);
+    	 frontRight = new InvertableTalon(2,true);
+    	 rearRight = new InvertableTalon(3,true);
     	 myRobot = new RobotDrive(rearLeft, frontLeft, rearRight, frontRight);
     }
     
@@ -81,7 +81,7 @@ public class Robot extends IterativeRobot {
     	//Not sure if we're using tank drive or arcade, so I commented out arcade.
     	//myRobot.arcadeDrive(stick);
     	while (isOperatorControl() && isEnabled()) {
-        myRobot.tankDrive(leftStick, rightStick);
+        myRobot.tankDrive(-leftStick.getY(), -rightStick.getY());
         Timer.delay(0.01);
     	}
     }
