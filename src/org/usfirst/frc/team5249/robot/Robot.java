@@ -44,10 +44,11 @@ public class Robot extends IterativeRobot {
     	 rearLeft = new Talon(1);
     	 frontRight = new Talon(2);
     	 rearRight = new Talon(3);
-    	 myRobot = new RobotDrive(frontLeft, rearLeft, frontRight, rearRight);
+    	 myRobot = new RobotDrive(rearLeft, frontLeft, rearRight, frontRight);
     }
     
     /**
+     * 
      * This function is run once each time the robot enters autonomous mode
      */
     public void autonomousInit() {
@@ -90,6 +91,7 @@ public class Robot extends IterativeRobot {
      */
     public void testPeriodic() {
     	LiveWindow.run();
+
     }
     
 }
