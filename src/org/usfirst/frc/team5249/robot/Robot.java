@@ -2,11 +2,12 @@ package org.usfirst.frc.team5249.robot;
 
 //import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Solenoid;
 //import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.buttons.Button;
@@ -24,21 +25,16 @@ import org.usfirst.frc.team5249.robot.InvertableTalon;
  */
 public class Robot extends IterativeRobot {
 	int autoLoopCounter;
-	Joystick leftStick = new Joystick(1);
-	// Joystick rightStick = new Joystick(0);
 	InvertableTalon frontLeft;
 	InvertableTalon rearLeft;
 	InvertableTalon frontRight;
 	InvertableTalon rearRight;
+	Jaguar winchSystem;
 	RobotDrive myRobot;
 	XboxController drive;
-	// XboxController operator;
-	Solenoid solenoidExtend = new Solenoid (1,0);
-	Solenoid solenoidRetract = new Solenoid (1);
+	DoubleSolenoid solenoidExtend = new DoubleSolenoid(1, 0);
+	// DoubleSolenoid solenoidRetract = new DoubleSolenoid(1,0);
 	Compressor compressor = new Compressor(0);
-	
-	private double leftMotorSpeed;
-	private double rightMotorSpeed;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -46,13 +42,13 @@ public class Robot extends IterativeRobot {
 	 */
 	public void robotInit() {
 		compressor.start();
+		winchSystem = new Jaguar(4);
 		frontLeft = new InvertableTalon(0, true);
 		rearLeft = new InvertableTalon(1, true);
 		frontRight = new InvertableTalon(2, true);
 		rearRight = new InvertableTalon(3, true);
 		myRobot = new RobotDrive(rearLeft, frontLeft, rearRight, frontRight);
 		drive = new XboxController(0);
-		// operator = new XboxController(1);
 
 	}
 
@@ -69,7 +65,7 @@ public class Robot extends IterativeRobot {
 	 */
 	public void autonomousPeriodic() {
 		if (autoLoopCounter < 100) // Check if we've completed 100 loops
-									// (approximately 2 seconds)
+		// (approximately 2 seconds)
 		{
 			myRobot.drive(-0.5, 0.0); // drive forwards half speed
 			autoLoopCounter++;
@@ -89,30 +85,37 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 
-	/*
-	 * rt = forward, lt = reverse leftJoystick = turningfactor.
-	 */
 	public void teleopPeriodic() {
-
+		compressor.setClosedLoopControl(true);
 
 		while (isOperatorControl() && isEnabled()) {
-			// myRobot.arcadeDrive(leftStick);
-			compressor.setClosedLoopControl(true);
-			if(drive.getRightTrigger()>drive.getLeftTrigger()){
-				solenoidExtend.set(true);
-				compressor.start();
-			}else{
-				solenoidExtend.set(false);
-				compressor.stop();
+			/*
+			 * if(drive.getRightTrigger()>drive.getLeftTrigger()){
+			 * solenoidExtend.set(true); compressor.start(); }else{
+			 * solenoidExtend.set(false); compressor.stop(); }
+			 */
+			if (drive.getButton(6)) {
+				solenoidExtend.set(DoubleSolenoid.Value.kForward);
+				if (drive.getButton(5)) {
+				solenoidExtend.set(DoubleSolenoid.Value.kReverse);
+				}
+
+			} else {
+				System.out.println("TESTING");
+				solenoidExtend.set(DoubleSolenoid.Value.kOff);
+
 			}
-			myRobot.setLeftRightMotorOutputs(-drive.getLeftY(),
-					-drive.getRightY());
+			myRobot.setLeftRightMotorOutputs(drive.getRightTrigger()-drive.getLeftTrigger()+drive.getLeftX(),
+					drive.getRightTrigger()-drive.getLeftTrigger()-drive.getLeftX());
 			
-			//myRobot.setLeftRightMotorOutputs(drive.getLeftTrigger(),
-					//drive.getRightTrigger());
+			
+			//do not know which causes which yet
+			winchSystem.set(drive.getRightY());
+
 			Timer.delay(0.01);
 		}
 	}
+
 	/**
 	 * This function is called periodically during test mode
 	 */
