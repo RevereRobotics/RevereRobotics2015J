@@ -5,12 +5,9 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Jaguar;
-import edu.wpi.first.wpilibj.Joystick;
-//import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 //import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 import org.usfirst.frc.team5249.robot.XboxController;
@@ -32,9 +29,10 @@ public class Robot extends IterativeRobot {
 	Jaguar winchSystem;
 	RobotDrive myRobot;
 	XboxController drive;
-	DoubleSolenoid solenoidExtend = new DoubleSolenoid(1, 0);
-	// DoubleSolenoid solenoidRetract = new DoubleSolenoid(1,0);
+	DoubleSolenoid alphaPiston = new DoubleSolenoid(1, 0);
 	Compressor compressor = new Compressor(0);
+	double leftMotorSpd;
+	double rightMotorSpd;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -64,14 +62,29 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
-		if (autoLoopCounter < 100) // Check if we've completed 100 loops
-		// (approximately 2 seconds)
-		{
-			myRobot.drive(-0.5, 0.0); // drive forwards half speed
-			autoLoopCounter++;
-		} else {
-			myRobot.drive(0.0, 0.0); // stop robot
+		//close jaws
+		if (autoLoopCounter<10) {
+			alphaPiston.set(DoubleSolenoid.Value.kForward);
+		}		
+		
+		//rotate
+		if ((autoLoopCounter < 50)&&(autoLoopCounter>20)) {
+			myRobot.setLeftRightMotorOutputs(-.5, .5);
 		}
+
+		if ((autoLoopCounter < 150)&&(autoLoopCounter>50)) 
+			// Check if we've completed 100 loops
+			// (approximately 2 seconds)
+		{
+			myRobot.drive(-0.5, 0.0); // drive backwards half speed
+		} 
+		
+		if (autoLoopCounter>150) {
+			alphaPiston.set(DoubleSolenoid.Value.kReverse);
+			myRobot.drive(0, 0);
+		}
+		
+		autoLoopCounter++;
 	}
 
 	/**
@@ -87,30 +100,36 @@ public class Robot extends IterativeRobot {
 
 	public void teleopPeriodic() {
 		compressor.setClosedLoopControl(true);
+		//	leftMotorSpd = XboxController.clamp(-1.0,1.0, drive.getRightTrigger() - drive.getLeftTrigger() + drive.getLeftX());
+		//rightMotorSpd = XboxController.clamp(-1.0,1.0, drive.getRightTrigger() - drive.getLeftTrigger() - drive.getLeftX());
+		// Double leftX = drive.getLeftX();
+		 //leftX = drive.deadBand(drive.getLeftX(), .15);
+
 
 		while (isOperatorControl() && isEnabled()) {
-			/*
-			 * if(drive.getRightTrigger()>drive.getLeftTrigger()){
-			 * solenoidExtend.set(true); compressor.start(); }else{
-			 * solenoidExtend.set(false); compressor.stop(); }
-			 */
-			if (drive.getButton(6)) {
-				solenoidExtend.set(DoubleSolenoid.Value.kForward);
-				if (drive.getButton(5)) {
-				solenoidExtend.set(DoubleSolenoid.Value.kReverse);
-				}
 
+
+			if (drive.getButton(6)) {
+				alphaPiston.set(DoubleSolenoid.Value.kForward);
+			} else if (drive.getButton(5)) {
+				alphaPiston.set(DoubleSolenoid.Value.kReverse);
 			} else {
-				System.out.println("TESTING");
-				solenoidExtend.set(DoubleSolenoid.Value.kOff);
+				alphaPiston.set(DoubleSolenoid.Value.kOff);
 
 			}
-			myRobot.setLeftRightMotorOutputs(drive.getRightTrigger()-drive.getLeftTrigger()+drive.getLeftX(),
-					drive.getRightTrigger()-drive.getLeftTrigger()-drive.getLeftX());
-			
-			
+		//myRobot.setLeftRightMotorOutputs(drive.getRightTrigger() + drive.getLeftTrigger() + drive.getLeftX(), //leftX -.039,
+			//drive.getRightTrigger()-drive.getLeftTrigger() - drive.getLeftX());
+			myRobot.setLeftRightMotorOutputs(-drive.getLeftY(), -drive.getRightY());
+
+
 			//do not know which causes which yet
-			winchSystem.set(drive.getRightY());
+		//	if (drive.getRightTrigger() > drive.getLeftTrigger()){ 
+				winchSystem.set(drive.getLeftTrigger());
+			 if (drive.getLeftTrigger() < drive.getRightTrigger()) {
+				winchSystem.set(-drive.getRightTrigger());
+			}
+			//winchSystem.set(drive.getRightY());
+
 
 			Timer.delay(0.01);
 		}
