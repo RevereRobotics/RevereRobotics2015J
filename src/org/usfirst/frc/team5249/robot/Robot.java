@@ -33,7 +33,10 @@ public class Robot extends IterativeRobot {
 	Compressor compressor = new Compressor(0);
 	double leftMotorSpd;
 	double rightMotorSpd;
-
+	
+	double leftAdjust;
+	double rightAdjust;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -50,39 +53,83 @@ public class Robot extends IterativeRobot {
 
 	}
 
+	public void autonomousRight(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			myRobot.setLeftRightMotorOutputs(.5*leftAdjust, -.5*rightAdjust);
+		}
+	}
+	public void autonomousLeft(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			myRobot.setLeftRightMotorOutputs(-.5*leftAdjust, .5*rightAdjust);
+		}
+	}
+	public void autonomousForward(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			myRobot.setLeftRightMotorOutputs(-.5*leftAdjust, -.5*rightAdjust);
+		}
+	}
+	public void autonomousBackward(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			myRobot.setLeftRightMotorOutputs(.5*leftAdjust, .5*rightAdjust);
+		}
+	}
+	public void autonomousStop(int endTime){
+		if (autoLoopCounter>150) {
+			alphaPiston.set(DoubleSolenoid.Value.kReverse);
+			myRobot.drive(0, 0);
+		}
+	}
+	public void autonomousOpen(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			alphaPiston.set(DoubleSolenoid.Value.kReverse);
+		}
+	}
+	public void autonomousClose(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			alphaPiston.set(DoubleSolenoid.Value.kForward);
+		}
+	}
+	public void autonomousLift(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			winchSystem.set(.5);
+		}
+	}
+	public void autonomousLower(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			winchSystem.set(-.5);
+		}
+	}
+	public void autonomousWinchStop(int startTime, int endTime){
+		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
+			winchSystem.set(0);
+		}
+	}
+	
 	/**
 	 *
 	 * This function is run once each time the robot enters autonomous mode
 	 */
 	public void autonomousInit() {
+		
+		leftAdjust = .9;
+		rightAdjust = 1;
 		autoLoopCounter = 0;
 	}
 
 	/**
 	 * This function is called periodically during autonomous
 	 */
+	// 100 loops ~ 2 seconds
 	public void autonomousPeriodic() {
-		//close jaws
-		if (autoLoopCounter<10) {
-			alphaPiston.set(DoubleSolenoid.Value.kForward);
-		}		
-		
-		//rotate
-		if ((autoLoopCounter < 50)&&(autoLoopCounter>20)) {
-			myRobot.setLeftRightMotorOutputs(-.5, .5);
-		}
-
-		if ((autoLoopCounter < 150)&&(autoLoopCounter>50)) 
-			// Check if we've completed 100 loops
-			// (approximately 2 seconds)
-		{
-			myRobot.drive(-0.5, 0.0); // drive backwards half speed
-		} 
-		
-		if (autoLoopCounter>150) {
-			alphaPiston.set(DoubleSolenoid.Value.kReverse);
-			myRobot.drive(0, 0);
-		}
+		autonomousClose(0,10);
+		autonomousRight(10,30);
+		autonomousForward(30,80);
+		autonomousOpen(80,90);
+		autonomousBackward(90,120);
+		autonomousLeft(120,140);
+		autonomousForward(140,170);
+		autonomousRight(170,190);
+		autonomousBackward(190,240);
 		
 		autoLoopCounter++;
 	}
