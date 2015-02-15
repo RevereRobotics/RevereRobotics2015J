@@ -33,10 +33,16 @@ public class Robot extends IterativeRobot {
 	Compressor compressor = new Compressor(0);
 	double leftMotorSpd;
 	double rightMotorSpd;
-	
+
 	double leftAdjust;
 	double rightAdjust;
-	
+	// in ticks
+	int turn90Degrees;
+
+	autonomousRobot aDrive;
+	final static boolean start = true;
+	final static boolean end = false;
+
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -53,67 +59,197 @@ public class Robot extends IterativeRobot {
 
 	}
 
-	public void autonomousRight(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			myRobot.setLeftRightMotorOutputs(.5*leftAdjust, -.5*rightAdjust);
+	// Ordered actions ---------------------------------------------------------
+	public void orderedRight(int lengthOfAction) {
+		autonomousRight(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedLeft(int lengthOfAction) {
+		autonomousLeft(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedForward(int lengthOfAction) {
+		autonomousForward(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedBackward(int lengthOfAction) {
+		autonomousBackward(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedOpen(int lengthOfAction) {
+		autonomousOpen(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedClose(int lengthOfAction) {
+		autonomousClose(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedRaise(int lengthOfAction) {
+		autonomousRaise(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedLower(int lengthOfAction) {
+		autonomousLower(aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	public void orderedWinchStop(int lengthOfAction) {
+		autonomousWinchStop(
+				aDrive.autonomousOrderedTime(lengthOfAction, start),
+				aDrive.autonomousOrderedTime(lengthOfAction, end));
+	}
+
+	// More raw actions---------------------------------------------------------
+	public void autonomousRight(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			myRobot.setLeftRightMotorOutputs(.5 * leftAdjust, -.5 * rightAdjust);
 		}
 	}
-	public void autonomousLeft(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			myRobot.setLeftRightMotorOutputs(-.5*leftAdjust, .5*rightAdjust);
+
+	public void autonomousLeft(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			myRobot.setLeftRightMotorOutputs(-.5 * leftAdjust, .5 * rightAdjust);
 		}
 	}
-	public void autonomousForward(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			myRobot.setLeftRightMotorOutputs(-.5*leftAdjust, -.5*rightAdjust);
+
+	public void autonomousForward(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			myRobot.setLeftRightMotorOutputs(-.5 * leftAdjust, -.5
+					* rightAdjust);
 		}
 	}
-	public void autonomousBackward(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			myRobot.setLeftRightMotorOutputs(.5*leftAdjust, .5*rightAdjust);
+
+	public void autonomousBackward(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			myRobot.setLeftRightMotorOutputs(.5 * leftAdjust, .5 * rightAdjust);
 		}
 	}
-	public void autonomousStop(int endTime){
-		if (autoLoopCounter>150) {
+
+	public void autonomousStop(int endTime) {
+		if (autoLoopCounter > 150) {
 			alphaPiston.set(DoubleSolenoid.Value.kReverse);
 			myRobot.drive(0, 0);
-		}
-	}
-	public void autonomousOpen(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			alphaPiston.set(DoubleSolenoid.Value.kReverse);
-		}
-	}
-	public void autonomousClose(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			alphaPiston.set(DoubleSolenoid.Value.kForward);
-		}
-	}
-	public void autonomousLift(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			winchSystem.set(.5);
-		}
-	}
-	public void autonomousLower(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
-			winchSystem.set(-.5);
-		}
-	}
-	public void autonomousWinchStop(int startTime, int endTime){
-		if ((autoLoopCounter < endTime)&&(autoLoopCounter>startTime)) {
 			winchSystem.set(0);
 		}
 	}
-	
+
+	public void autonomousOpen(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			alphaPiston.set(DoubleSolenoid.Value.kReverse);
+		}
+	}
+
+	public void autonomousClose(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			alphaPiston.set(DoubleSolenoid.Value.kForward);
+		}
+	}
+
+	public void autonomousRaise(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			winchSystem.set(.5);
+		}
+	}
+
+	public void autonomousLower(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			winchSystem.set(-.5);
+		}
+	}
+
+	public void autonomousWinchStop(int startTime, int endTime) {
+		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
+			winchSystem.set(0);
+		}
+	}
+
+	// 50 ticks a second (measured in ticks)
+	public void autonomousNoStacking() {
+		autonomousClose(0, 10);
+		autonomousRight(10, 30);
+		autonomousForward(30, 80);
+		autonomousOpen(80, 90);
+		autonomousBackward(90, 120);
+		autonomousLeft(120, 140);
+		autonomousForward(140, 170);
+		autonomousRight(170, 190);
+		autonomousBackward(190, 240);
+		autonomousStop(240);
+	}
+
+	// preset of no stacking please adjust values when testing
+	public void orderedNoStack() {
+		orderedClose(10);
+		orderedRight(turn90Degrees);
+		orderedForward(50);
+		orderedOpen(10);
+		orderedBackward(50);
+		orderedRight(turn90Degrees);
+		orderedForward(50);
+		orderedLeft(turn90Degrees);
+		orderedForward(70);
+	}
+
+	// preset of stacking one please adjust values when testing
+	public void orderedStackOne() {
+		orderedClose(10);
+		orderedRight(turn90Degrees);
+		orderedRaise(40);
+		orderedForward(50);
+		orderedOpen(10);
+		orderedLower(40);
+		orderedBackward(50);
+		orderedRight(turn90Degrees);
+		orderedForward(50);
+		orderedLeft(turn90Degrees);
+		orderedForward(70);
+	}
+
+	// must test on field what value to lift to
+	public void autonomousStackOne() {
+		autonomousClose(0, 10);
+
+		// Adjust to make this a 90 degree turn
+		autonomousRight(10, 30);
+
+		// I don't know how high to raise
+		autonomousRaise(20, 60);
+
+		// Adjust times
+		autonomousForward(30, 80);
+		autonomousOpen(80, 90);
+		autonomousBackward(90, 120);
+		autonomousLeft(120, 140);
+		autonomousForward(140, 170);
+		autonomousRight(170, 190);
+		autonomousBackward(190, 240);
+
+		// Lowers all the way to original position
+		autonomousLower(200, 240);
+
+		autonomousStop(240);
+	}
+
 	/**
 	 *
 	 * This function is run once each time the robot enters autonomous mode
 	 */
 	public void autonomousInit() {
-		
+		// ******************Adjust these values so that they actually work*****
+		turn90Degrees = 30;
 		leftAdjust = .9;
 		rightAdjust = 1;
+
+		// Do not adjust these values
 		autoLoopCounter = 0;
+		aDrive = new autonomousRobot();
 	}
 
 	/**
@@ -121,16 +257,8 @@ public class Robot extends IterativeRobot {
 	 */
 	// 100 loops ~ 2 seconds
 	public void autonomousPeriodic() {
-		autonomousClose(0,10);
-		autonomousRight(10,30);
-		autonomousForward(30,80);
-		autonomousOpen(80,90);
-		autonomousBackward(90,120);
-		autonomousLeft(120,140);
-		autonomousForward(140,170);
-		autonomousRight(170,190);
-		autonomousBackward(190,240);
-		
+		orderedNoStack();
+
 		autoLoopCounter++;
 	}
 
@@ -147,14 +275,15 @@ public class Robot extends IterativeRobot {
 
 	public void teleopPeriodic() {
 		compressor.setClosedLoopControl(true);
-		//	leftMotorSpd = XboxController.clamp(-1.0,1.0, drive.getRightTrigger() - drive.getLeftTrigger() + drive.getLeftX());
-		//rightMotorSpd = XboxController.clamp(-1.0,1.0, drive.getRightTrigger() - drive.getLeftTrigger() - drive.getLeftX());
-		// Double leftX = drive.getLeftX();
-		 //leftX = drive.deadBand(drive.getLeftX(), .15);
-
+		/*
+		 * leftMotorSpd = XboxController.clamp(-1.0,1.0, drive.getRightTrigger()
+		 * - drive.getLeftTrigger() + drive.getLeftX()); rightMotorSpd =
+		 * XboxController.clamp(-1.0,1.0, drive.getRightTrigger() -
+		 * drive.getLeftTrigger() - drive.getLeftX()); Double leftX =
+		 * drive.getLeftX(); leftX = drive.deadBand(drive.getLeftX(), .15);
+		 */
 
 		while (isOperatorControl() && isEnabled()) {
-
 
 			if (drive.getButton(6)) {
 				alphaPiston.set(DoubleSolenoid.Value.kForward);
@@ -164,19 +293,20 @@ public class Robot extends IterativeRobot {
 				alphaPiston.set(DoubleSolenoid.Value.kOff);
 
 			}
-		//myRobot.setLeftRightMotorOutputs(drive.getRightTrigger() + drive.getLeftTrigger() + drive.getLeftX(), //leftX -.039,
-			//drive.getRightTrigger()-drive.getLeftTrigger() - drive.getLeftX());
-			myRobot.setLeftRightMotorOutputs(-drive.getLeftY(), -drive.getRightY());
+			// myRobot.setLeftRightMotorOutputs(drive.getRightTrigger() +
+			// drive.getLeftTrigger() + drive.getLeftX(), //leftX -.039,
+			// drive.getRightTrigger()-drive.getLeftTrigger() -
+			// drive.getLeftX());
+			myRobot.setLeftRightMotorOutputs(-drive.getLeftY(),
+					-drive.getRightY());
 
-
-			//do not know which causes which yet
-		//	if (drive.getRightTrigger() > drive.getLeftTrigger()){ 
-				winchSystem.set(drive.getLeftTrigger());
-			 if (drive.getLeftTrigger() < drive.getRightTrigger()) {
+			// do not know which causes which yet
+			// if (drive.getRightTrigger() > drive.getLeftTrigger()){
+			winchSystem.set(drive.getLeftTrigger());
+			if (drive.getLeftTrigger() < drive.getRightTrigger()) {
 				winchSystem.set(-drive.getRightTrigger());
 			}
-			//winchSystem.set(drive.getRightY());
-
+			// winchSystem.set(drive.getRightY());
 
 			Timer.delay(0.01);
 		}
