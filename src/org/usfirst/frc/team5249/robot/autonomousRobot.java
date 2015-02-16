@@ -23,7 +23,7 @@ public class autonomousRobot {
 				autonomousTime[i]=lengthOfAction;
 				autonomousActionAvailable[i] = false;
 				actionNumber = i;
-				break;
+				i = autonomousActionAvailable.length;
 			}
 		}
 		
@@ -39,4 +39,6 @@ public class autonomousRobot {
 			return endTime;
 		}
 	}
+	
+	
 }
