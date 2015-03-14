@@ -38,6 +38,20 @@ public class Robot extends IterativeRobot {
 	double rightAdjust;
 	// in ticks
 	int turn90Degrees;
+	
+	int a = 20;//close
+	int b = a+50;//right
+	int c = b+30;//forward
+	int d = c+75;//open
+	int e = d+25;//backward
+	int f = e+0;//left
+	int g = f+0;//forward
+	int h = g+0;//right
+	int i = h+0;//backward
+	int j = i+0;//lower
+	int k = j+0;//stop
+	int l = k+0;
+	
 
 	autonomousRobot aDrive;
 	final static boolean start = true;
@@ -214,27 +228,27 @@ public class Robot extends IterativeRobot {
 
 	// must test on field what value to lift to
 	public void autonomousStackOne() {
-		autonomousClose(0, 10);
+		autonomousClose(0, a);
 
 		// Adjust to make this a 90 degree turn
-		autonomousRight(10, 30);
+		autonomousRight(a, b);
 
 		// I don't know how high to raise
-		autonomousRaise(20, 60);
+		autonomousRaise(b, c);
 
 		// Adjust times
-		autonomousForward(30, 80);
-		autonomousOpen(80, 90);
-		autonomousBackward(90, 120);
-		autonomousLeft(120, 140);
-		autonomousForward(140, 170);
-		autonomousRight(170, 190);
-		autonomousBackward(190, 240);
+		autonomousForward(c, d);
+		autonomousOpen(d, e);
+		autonomousBackward(e, f);
+		autonomousLeft(f, g);
+		autonomousForward(g, h);
+		autonomousRight(h, i);
+		autonomousBackward(i, j);
 
 		// Lowers all the way to original position
-		autonomousLower(200, 240);
+		autonomousLower(j, k);
 
-		autonomousStop(240);
+		autonomousStop(k);
 	}
 
 	/**
@@ -257,7 +271,7 @@ public class Robot extends IterativeRobot {
 	 */
 	// 100 loops ~ 2 seconds
 	public void autonomousPeriodic() {
-		orderedNoStack();
+		autonomousStackOne();
 
 		autoLoopCounter++;
 	}
