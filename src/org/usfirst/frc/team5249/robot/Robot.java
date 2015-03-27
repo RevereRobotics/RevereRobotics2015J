@@ -1,6 +1,7 @@
 package org.usfirst.frc.team5249.robot;
 
 //import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -21,6 +22,8 @@ import org.usfirst.frc.team5249.robot.InvertableTalon;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	public static CameraServer cam0;
+	
 	int autoLoopCounter;
 	InvertableTalon frontLeft;
 	InvertableTalon rearLeft;
@@ -40,10 +43,10 @@ public class Robot extends IterativeRobot {
 	int turn90Degrees;
 	
 	int a = 20;//close
-	int b = a+50;//right
-	int c = b+30;//forward
-	int d = c+75;//open
-	int e = d+25;//backward
+	int b = a+38;//right
+	int c = b+30;//up
+	int d = c+75;//forward
+	int e = d+25;//open
 	int f = e+0;//left
 	int g = f+0;//forward
 	int h = g+0;//right
@@ -62,6 +65,10 @@ public class Robot extends IterativeRobot {
 	 * used for any initialization code.
 	 */
 	public void robotInit() {
+		cam0 = CameraServer.getInstance();
+		cam0.setQuality(10);
+		cam0.setSize(100);
+		cam0.startAutomaticCapture();
 		compressor.start();
 		winchSystem = new Jaguar(4);
 		frontLeft = new InvertableTalon(0, true);
@@ -135,14 +142,14 @@ public class Robot extends IterativeRobot {
 
 	public void autonomousForward(int startTime, int endTime) {
 		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
-			myRobot.setLeftRightMotorOutputs(-.5 * leftAdjust, -.5
+			myRobot.setLeftRightMotorOutputs(.5 * leftAdjust, .5
 					* rightAdjust);
 		}
 	}
 
 	public void autonomousBackward(int startTime, int endTime) {
 		if ((autoLoopCounter < endTime) && (autoLoopCounter > startTime)) {
-			myRobot.setLeftRightMotorOutputs(.5 * leftAdjust, .5 * rightAdjust);
+			myRobot.setLeftRightMotorOutputs(-.5 * leftAdjust, -.5 * rightAdjust);
 		}
 	}
 
@@ -271,8 +278,9 @@ public class Robot extends IterativeRobot {
 	 */
 	// 100 loops ~ 2 seconds
 	public void autonomousPeriodic() {
-		autonomousStackOne();
-
+		//autonomousStackOne();
+		autonomousBackward(0,55);
+		autonomousStop(60);
 		autoLoopCounter++;
 	}
 
@@ -299,9 +307,9 @@ public class Robot extends IterativeRobot {
 
 		while (isOperatorControl() && isEnabled()) {
 
-			if (drive.getButton(6)) {
+			if (drive.getButton(5)) {
 				alphaPiston.set(DoubleSolenoid.Value.kForward);
-			} else if (drive.getButton(5)) {
+			} else if (drive.getButton(6)) {
 				alphaPiston.set(DoubleSolenoid.Value.kReverse);
 			} else {
 				alphaPiston.set(DoubleSolenoid.Value.kOff);
